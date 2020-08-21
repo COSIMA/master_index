@@ -1,0 +1,52 @@
+#!/bin/bash
+
+module purge
+module use /g/data/hh5/public/modules/
+module load conda/analysis3-unstable
+
+update_db() {
+
+  DIR=$1
+
+  python - << END
+import cosima_cookbook as cc
+from os import listdir
+from pathlib import Path
+
+db = 'cosima_master.db'
+session = cc.database.create_session(db)
+
+dir='${DIR}'
+expt = Path(dir).name
+
+print('Indexing: {}'.format(dir))
+cc.database.build_index(dir, session, update=True, prune=True, delete=True)
+# cc.database.prune_experiment(expt, session, delete=True)
+END
+
+}
+
+ROOT="/g/data/ik11/"
+
+OUTPUTS="${ROOT}/outputs/"
+for d in $(find $OUTPUTS -mindepth 2 -maxdepth 2 -type d)
+do
+  echo update_db $d
+  update_db $d
+done
+
+JRA55="${ROOT}/inputs/JRA-55/"
+
+JRA55_do="${JRA55}/MRI-JRA55-do/"
+for d in ${JRA55_do}/*
+do
+  echo update_db $d
+  update_db $d
+done
+
+JRA55_RYF="${JRA55}/RYF/indexing/"
+for d in ${JRA55_RYF}/*
+do
+  echo update_db $d
+  update_db $d
+done
