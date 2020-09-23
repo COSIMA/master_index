@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export set PYTHONNOUSERSITE=1
+
 module purge
 module use /g/data/hh5/public/modules/
 module load conda/analysis3-unstable
@@ -47,6 +49,14 @@ done
 JRA55_RYF="${JRA55}/RYF/indexing/"
 for d in ${JRA55_RYF}/*
 do
+  echo update_db $d
+  update_db $d
+done
+
+GMD_PAPER="/g/data/hh5/tmp/cosima/"
+for d in access-om2/1deg_jra55v13_iaf_spinup1_B1 access-om2-025/025deg_jra55v13_iaf_gmredi6 access-om2-01/01deg_jra55v13_iaf
+do
+  d=${GMD_PAPER}/${d}
   echo update_db $d
   update_db $d
 done
