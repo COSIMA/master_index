@@ -60,3 +60,13 @@ do
   echo update_db $d
   update_db $d
 done
+
+CJ50="/g/data/cj50/access-om2/"
+CJ50_RAW="${CJ50}/raw-output"
+for d in ${CJ50_RAW}/*
+do
+  d=${GMD_PAPER}/${d}
+  echo update_db $d
+  update_db $d
+done
+
