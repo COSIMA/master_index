@@ -10,10 +10,12 @@ update_db() {
 
   DIR=$1
 
-  python - << END
+  python - -I << END
 import cosima_cookbook as cc
 from os import listdir
 from pathlib import Path
+
+print(cc)
 
 db = 'cosima_master.db'
 session = cc.database.create_session(db)
@@ -22,7 +24,7 @@ dir='${DIR}'
 expt = Path(dir).name
 
 print('Indexing: {}'.format(dir))
-cc.database.build_index(dir, session, update=True, prune=True, delete=True)
+cc.database.build_index(dir, session, prune='delete', force=False, followsymlinks=True)
 # cc.database.prune_experiment(expt, session, delete=True)
 END
 
