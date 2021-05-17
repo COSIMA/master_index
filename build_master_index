@@ -1,5 +1,14 @@
 #!/bin/bash
 
+#PBS -N build_cc_db
+#PBS -P v45 
+#PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5
+#PBS -l walltime=24:00:00 
+#PBS -l mem=32GB 
+#PBS -l ncpus=1
+#PBS -q normalbw
+#PBS -l wd 
+
 export set PYTHONNOUSERSITE=1
 
 module purge
