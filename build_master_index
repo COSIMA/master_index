@@ -9,6 +9,7 @@
 #PBS -q normalbw
 #PBS -l wd
 #PBS -W block=true
+#PBS -j oe
 #PBS -o logs
 #PBS -e logs
 
