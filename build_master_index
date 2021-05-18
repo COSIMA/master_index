@@ -8,6 +8,7 @@
 #PBS -l ncpus=1
 #PBS -q normalbw
 #PBS -l wd
+#PBS -W block=true
 #PBS -o logs
 #PBS -e logs
 
