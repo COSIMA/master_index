@@ -4,7 +4,7 @@
 #PBS -P v45
 #PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5
 #PBS -l walltime=24:00:00 
-#PBS -l mem=64GB 
+#PBS -l mem=16GB 
 #PBS -l ncpus=1
 #PBS -q normalbw
 #PBS -l wd
@@ -44,6 +44,10 @@ END
 }
 
 ROOT="/g/data/ik11/"
+
+WOA18="${ROOT}/observations/woa18"
+echo update_db $WOA18
+update_db $WOA18
 
 OUTPUTS="${ROOT}/outputs/"
 for d in $(find $OUTPUTS -mindepth 2 -maxdepth 2 -type d)
