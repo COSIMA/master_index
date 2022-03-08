@@ -4,7 +4,7 @@
 #PBS -P v45
 #PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5
 #PBS -l walltime=24:00:00 
-#PBS -l mem=16GB 
+#PBS -l mem=64GB 
 #PBS -l ncpus=1
 #PBS -q normalbw
 #PBS -l wd
@@ -90,7 +90,7 @@ do
 done
 
 CJ50_RAW="${CJ50}/raw-output/access-om2-01"
-for d in $(find ${CJ50_CF} -mindepth 2 -maxdepth 2 -type d)
+for d in $(find ${CJ50_RAW} -mindepth 2 -maxdepth 2 -type d)
 do
   echo update_db $d
   update_db $d
