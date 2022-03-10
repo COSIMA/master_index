@@ -89,7 +89,7 @@ do
   update_db $d
 done
 
-CJ50_RAW="${CJ50}/raw-output/access-om2-01"
+CJ50_RAW="${CJ50}/raw-output"
 for d in $(find ${CJ50_RAW} -mindepth 2 -maxdepth 2 -type d)
 do
   echo update_db $d
