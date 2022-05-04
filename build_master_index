@@ -95,3 +95,8 @@ do
   echo update_db $d
   update_db $d
 done
+
+# Temporary fix, until 01deg_jra55v140_iaf_cycle4 is completed and moved to CJ50_RAW
+d="/g/data/cj50/admin/incoming/access-om2/raw-output/access-om2-01/01deg_jra55v140_iaf_cycle4"
+echo update_db $d
+update_db $d
