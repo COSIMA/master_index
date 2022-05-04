@@ -2,9 +2,9 @@
 
 #PBS -N build_cc_db
 #PBS -P v45
-#PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5
+#PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5+gdata/qv56
 #PBS -l walltime=24:00:00 
-#PBS -l mem=16GB 
+#PBS -l mem=64GB 
 #PBS -l ncpus=1
 #PBS -q normalbw
 #PBS -l wd
@@ -81,10 +81,17 @@ do
 done
 
 CJ50="/g/data/cj50/access-om2"
-CJ50_RAW="${CJ50}/raw-output/access-om2-01"
-for d in ${CJ50_RAW}/*
+
+CJ50_CF="${CJ50}/cf-compliant"
+for d in $(find ${CJ50_CF} -mindepth 3 -maxdepth 3 -type d)
 do
   echo update_db $d
   update_db $d
 done
 
+CJ50_RAW="${CJ50}/raw-output"
+for d in $(find ${CJ50_RAW} -mindepth 2 -maxdepth 2 -type d)
+do
+  echo update_db $d
+  update_db $d
+done
