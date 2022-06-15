@@ -8,8 +8,14 @@ pipeline {
     stages {
         stage('Update database') {
             steps {
-                sh "cp ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
-                sh "echo Update DB..."
+                sh '''if [ -e ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ]
+                      then
+                        echo "Cannot update database. File ${DB_PATH}/${DB_NAME}_${DB_DATE}.db already exist."
+                        exit 1
+                      else
+                        cp -n ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
+                      fi'''
+                sh "qsub -v DB_NAME,DB_PATH,DB_DATE build_master_index"
             }
         }
         stage('Update symlink') {

@@ -13,6 +13,21 @@
 #PBS -o logs
 #PBS -e logs
 
+
+# Sanity checks
+if [[ -z "${DB_NAME}" ]]; then
+  echo "Error: DB_NAME environment variable not set."
+  exit 1
+fi
+if [[ -z "${DB_PATH}" ]]; then
+  echo "Error: DB_PATH environment variable not set."
+  exit 1
+fi
+if [[ -z "${DB_DATE}" ]]; then
+  echo "Error: DB_DATE environment variable not set."
+  exit 1
+fi
+
 export set PYTHONNOUSERSITE=1
 
 module purge
@@ -30,7 +45,8 @@ from pathlib import Path
 
 print(cc)
 
-db = 'cosima_master.db'
+db = '${DB_PATH}/${DB_NAME}_${DB_DATE}.db'
+
 session = cc.database.create_session(db)
 
 dir='${DIR}'
