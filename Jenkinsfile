@@ -15,7 +15,9 @@ pipeline {
                       else
                         cp -n ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
                       fi'''
+                sh "chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
                 sh "qsub -v DB_NAME,DB_PATH,DB_DATE build_master_index"
+                sh "chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
             }
         }
         stage('Update symlink') {
