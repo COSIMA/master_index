@@ -8,13 +8,7 @@ pipeline {
     stages {
         stage('Update database') {
             steps {
-                sh '''if [ -e ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ]
-                      then
-                        echo "Cannot update database. File ${DB_PATH}/${DB_NAME}_${DB_DATE}.db already exist."
-                        exit 1
-                      else
-                        cp -n ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
-                      fi'''
+                sh "cp -n ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
                 sh "chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
                 sh "qsub -v DB_NAME,DB_PATH,DB_DATE build_master_index"
                 sh "chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
