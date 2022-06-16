@@ -3,9 +3,9 @@
 #PBS -N build_cc_db
 #PBS -P v45
 #PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5+gdata/qv56
-#PBS -l walltime=24:00:00 
-#PBS -l mem=64GB 
-#PBS -l ncpus=1
+#PBS -l walltime=6:00:00 
+#PBS -l mem=72GB 
+#PBS -l ncpus=8
 #PBS -q normalbw
 #PBS -l wd
 #PBS -W block=true
@@ -13,71 +13,49 @@
 #PBS -o logs
 #PBS -e logs
 
-export set PYTHONNOUSERSITE=1
+# export set PYTHONNOUSERSITE=1
 
 module purge
 module use /g/data/hh5/public/modules/
-module load conda/analysis3-unstable
+module load conda/analysis3-unstable parallel
 
-update_db() {
+EXPT_DIRS=()
 
-  DIR=$1
-
-  python - -I << END
-import cosima_cookbook as cc
-from os import listdir
-from pathlib import Path
-
-print(cc)
-
-db = 'cosima_master.db'
-session = cc.database.create_session(db)
-
-dir='${DIR}'
-expt = Path(dir).name
-
-print('Indexing: {}'.format(dir))
-cc.database.build_index(dir, session, prune='delete', force=False, followsymlinks=True)
-# cc.database.prune_experiment(expt, session, delete=True)
-END
-
+add_dir() {
+  # echo Adding $1
+  EXPT_DIRS+=($1)
 }
 
-ROOT="/g/data/ik11/"
+ROOT="/g/data/ik11"
 
 WOA18="${ROOT}/observations/woa18"
-echo update_db $WOA18
-update_db $WOA18
+add_dir $WOA18 
 
-OUTPUTS="${ROOT}/outputs/"
+OUTPUTS="${ROOT}/outputs"
 for d in $(find $OUTPUTS -mindepth 2 -maxdepth 2 -type d)
 do
-  echo update_db $d
-  update_db $d
+  add_dir $d 
 done
 
-JRA55="${ROOT}/inputs/JRA-55/"
+JRA55="${ROOT}/inputs/JRA-55"
 
-JRA55_do="${JRA55}/MRI-JRA55-do/"
+JRA55_do="${JRA55}/MRI-JRA55-do"
 for d in ${JRA55_do}/*
 do
-  echo update_db $d
-  update_db $d
+  add_dir $d 
 done
 
-JRA55_RYF="${JRA55}/RYF/indexing/"
+JRA55_RYF="${JRA55}/RYF/indexing"
 for d in ${JRA55_RYF}/*
 do
-  echo update_db $d
-  update_db $d
+  add_dir $d 
 done
 
-GMD_PAPER="/g/data/hh5/tmp/cosima/"
+GMD_PAPER="/g/data/hh5/tmp/cosima"
 for d in access-om2/1deg_jra55v13_iaf_spinup1_B1 access-om2-025/025deg_jra55v13_iaf_gmredi6 access-om2-01/01deg_jra55v13_iaf
 do
   d=${GMD_PAPER}/${d}
-  echo update_db $d
-  update_db $d
+  add_dir $d 
 done
 
 CJ50="/g/data/cj50/access-om2"
@@ -85,13 +63,13 @@ CJ50="/g/data/cj50/access-om2"
 CJ50_CF="${CJ50}/cf-compliant"
 for d in $(find ${CJ50_CF} -mindepth 3 -maxdepth 3 -type d)
 do
-  echo update_db $d
-  update_db $d
+  add_dir $d 
 done
 
 CJ50_RAW="${CJ50}/raw-output"
 for d in $(find ${CJ50_RAW} -mindepth 2 -maxdepth 2 -type d)
 do
-  echo update_db $d
-  update_db $d
+  add_dir $d 
 done
+
+parallel --shuf -v -j 1 --results "logs/{#}.log" ./update_db.py {} ::: "${EXPT_DIRS[@]}"
