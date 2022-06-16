@@ -3,16 +3,15 @@
 #PBS -N build_cc_db
 #PBS -P v45
 #PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5+gdata/qv56
-#PBS -l walltime=6:00:00 
+#PBS -l walltime=6:00:00
 #PBS -l mem=64GB 
 #PBS -l ncpus=1
 #PBS -q normalbw
 #PBS -l wd
 #PBS -W block=true
 #PBS -j oe
-#PBS -o logs
-#PBS -e logs
-
+#PBS -e log.err
+#PBS -o log.out
 
 # Sanity checks
 if [[ -z "${DB_NAME}" ]]; then
