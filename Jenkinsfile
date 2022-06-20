@@ -2,22 +2,23 @@ pipeline {
     agent {label 'mo1833.gadi'}
     environment {
         DB_PATH = '/scratch/v45/mo1833/databases'
-        DB_NAME = 'cosima_master'
         DB_DATE = """${sh(returnStdout: true, script: 'date +"%Y-%m-%d"')}""".trim()
+        DB_NEW = "${DB_PATH}/daily/cosima_master_${DB_DATE}.db"
+        DB_LINK = "${DB_PATH}/cosima_master.db"
     }
     stages {
         stage('Update database') {
             steps {
                 // Check if an update of the database has already been done today. Stop with an error if that is the case.
                 script {
-                    if (fileExists("${DB_PATH}/${DB_NAME}_${DB_DATE}.db")) {
+                    if (fileExists("${DB_NEW}")) {
                         error("Database has already been updated today.")
                     }
                 }
 
                 // Start the update from the latest version of the database
-                sh '''cp ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
-                      chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db'''
+                sh '''cp ${DB_LINK} ${DB_NEW}
+                      chmod 640 ${DB_NEW}'''
 
                 // Try to update the database. The logic of the next block is unfortunately not easy to follow.
                 // Because we set a time limit, the update can fail for two different reasons:
@@ -33,7 +34,7 @@ pipeline {
                     catchError(catchInterruptions: 'TRUE', buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                         try {
                             timeout(time: 6, unit: "HOURS") {
-                                sh "./build_master_index"
+                                sh "./build_master_index ${DB_NEW}"
                             }
                         } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
                             error "Caught ${e.toString()}"
@@ -47,26 +48,26 @@ pipeline {
                     }
                 }
 
-                sh "chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
+                sh "chmod 440 ${DB_NEW}"
             }
         }
     }
     post {
         success {
             // Update was successful, so we can now update the symlink to point to this new version of the database
-            sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
+            sh "ln -sf ${DB_NEW} ${DB_LINK}"
         }
         unstable {
             // The update timed out, but since no other errors have occured, this database should be usable and more complete than the previous version.
-            sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
+            sh "ln -sf ${DB_NEW} ${DB_LINK}"
         }
         failure {
             // Delete the failed attempt to update the database
-            sh "rm -f ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
+            sh "rm -f ${DB_NEW}"
         }
         aborted {
             // Delete the failed attempt to update the database, as we cannot be sure about the state of the database in that case
-            sh "rm -f ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
+            sh "rm -f ${DB_NEW}"
         }
         unsuccessful {
             emailext (
@@ -77,7 +78,7 @@ pipeline {
         }
         cleanup {
             // Prune old versions of the database that have not been accessed in the last 14 days.
-            sh "find ${DB_PATH}/${DB_NAME}_????-??-??.db -type f -atime +14 -exec rm {} \\;"
+            sh 'find ${DB_PATH}/daily -type f -atime +14 -exec rm -fv {} \\;'
             cleanWs()
         }
 

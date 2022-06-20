@@ -14,20 +14,12 @@
 #PBS -o log.out
 
 # Sanity checks
-if [[ -z "${DB_NAME}" ]]; then
-  echo "Error: DB_NAME environment variable not set."
-  exit 1
-fi
-if [[ -z "${DB_PATH}" ]]; then
-  echo "Error: DB_PATH environment variable not set."
-  exit 1
-fi
-if [[ -z "${DB_DATE}" ]]; then
-  echo "Error: DB_DATE environment variable not set."
+if [ -z "$1" ]; then
+  echo "Error: database to update was not provided."
   exit 1
 fi
 
- export set PYTHONNOUSERSITE=1
+export set PYTHONNOUSERSITE=1
 
 module purge
 module use /g/data/hh5/public/modules/
@@ -86,4 +78,4 @@ do
   add_dir $d 
 done
 
-./update_db.py -db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db "${EXPT_DIRS[@]}"
+./update_db.py -db $1 "${EXPT_DIRS[@]}"
