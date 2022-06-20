@@ -86,4 +86,4 @@ do
   add_dir $d 
 done
 
-./update_db.py "${EXPT_DIRS[@]}"
+./update_db.py -db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db "${EXPT_DIRS[@]}"

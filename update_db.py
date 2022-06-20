@@ -1,19 +1,24 @@
-#!/usr/bin/env python
-
-import sys
+#!/usr/bin/env python3
 
 import cosima_cookbook as cc
 
+import argparse
+import pathlib
+
+parser = argparse.ArgumentParser(description='Update COSIMA cookbook database.')
+parser.add_argument('dirs', type=pathlib.Path, nargs='+',
+                    help='Directories to index.')
+parser.add_argument('-db', '--database', dest='db', action='store',
+                    default='cosima_master.db',
+                    help='Database to update.')
+args = parser.parse_args()
+
 print(cc)
 
-dirs = sys.argv[1:]
+print('Establishing a DB connection to: {}'.format(args.db))
+session = cc.database.create_session(args.db)
 
-db = 'cosima_master.db'
-print('Establishing a DB connection')
-session = cc.database.create_session(db, timeout=30)
-
-for dir in dirs:
+for dir in args.dirs:
     print('Indexing: {}'.format(dir))
     cc.database.build_index(dir, session, prune='delete', 
-                            force=False, followsymlinks=True,
-                            nfiles=1000)
+                            force=False, followsymlinks=True)
