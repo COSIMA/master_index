@@ -8,7 +8,14 @@ pipeline {
     stages {
         stage('Update database') {
             steps {
-                sh '''cp -n ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
+                script {
+                    if (fileExists("${DB_PATH}/${DB_NAME}_${DB_DATE}.db")) {
+                        error("Database has already been updated today.")
+                    }
+                }
+
+                sh '''# Start the update from the latest version of the database
+                      cp ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
                       chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db'''
 
                 script {
@@ -30,15 +37,27 @@ pipeline {
                         error caughtException.message
                     }
                 }
+
+                sh "chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
             }
         }
     }
     post {
         success {
+            // Update was successful, so we can now link to this new version of the database
             sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
         }
         unstable {
+            // The update timed out, but since no other errors have occured, this database should be usable and more complete than the previous version.
             sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
+        }
+        failure {
+            // Delete the failed attempt to update the database
+            sh "rm -f ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
+        }
+        aborted {
+            // Delete the failed attempt to update the database, as we cannot be sure about the state of the database in that case
+            sh "rm -f ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
         }
         unsuccessful {
             emailext (
@@ -48,7 +67,6 @@ pipeline {
             )
         }
         cleanup {
-            sh "chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
             sh "find ${DB_PATH}/${DB_NAME}_????-??-??.db -type f -atime +14 -exec rm {} \\;"
             cleanWs()
         }
