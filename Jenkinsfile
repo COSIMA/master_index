@@ -9,9 +9,27 @@ pipeline {
         stage('Update database') {
             steps {
                 sh '''cp -n ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
-                      chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
-                      qsub -v DB_NAME,DB_PATH,DB_DATE build_master_index
-                      chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db'''
+                      chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db'''
+
+                script {
+                    Exception caughtException = null
+
+                    catchError(catchInterruptions: 'TRUE', buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                        try {
+                            timeout(time: 6, unit: "HOURS") {
+                                sh "./build_master_index"
+                            }
+                        } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+                            error "Caught ${e.toString()}"
+                        } catch (Throwable e) {
+                            caughtException = e
+                        }
+                    }
+
+                    if (caughtException) {
+                        error caughtException.message
+                    }
+                }
             }
         }
     }
@@ -19,7 +37,10 @@ pipeline {
         success {
             sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
         }
-        failure {
+        unstable {
+            sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
+        }
+        unsuccessful {
             emailext (
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
                 subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
@@ -27,11 +48,10 @@ pipeline {
             )
         }
         cleanup {
+            sh "chmod 440 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db"
             sh "find ${DB_PATH}/${DB_NAME}_????-??-??.db -type f -atime +14 -exec rm {} \\;"
-            archiveArtifacts artifacts: "log.out, log.err"
             cleanWs()
         }
 
     }
 }
-
