@@ -5,7 +5,7 @@
 #PBS -l storage=gdata/ik11+gdata/cj50+gdata/hh5+gdata/qv56
 #PBS -l walltime=6:00:00
 #PBS -l mem=72GB 
-#PBS -l ncpus=8
+#PBS -l ncpus=1
 #PBS -q normalbw
 #PBS -l wd
 #PBS -W block=true
@@ -27,11 +27,11 @@ if [[ -z "${DB_DATE}" ]]; then
   exit 1
 fi
 
-# export set PYTHONNOUSERSITE=1
+ export set PYTHONNOUSERSITE=1
 
 module purge
 module use /g/data/hh5/public/modules/
-module load conda/analysis3-unstable parallel
+module load conda/analysis3-unstable
 
 EXPT_DIRS=()
 
@@ -86,4 +86,4 @@ do
   add_dir $d 
 done
 
-parallel --shuf -v -j 1 --results "logs/{#}.log" ./update_db.py {} ::: "${EXPT_DIRS[@]}"
+./update_db.py "${EXPT_DIRS[@]}"
