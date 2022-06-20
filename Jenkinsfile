@@ -8,16 +8,25 @@ pipeline {
     stages {
         stage('Update database') {
             steps {
+                // Check if an update of the database has already been done today. Stop with an error if that is the case.
                 script {
                     if (fileExists("${DB_PATH}/${DB_NAME}_${DB_DATE}.db")) {
                         error("Database has already been updated today.")
                     }
                 }
 
-                sh '''# Start the update from the latest version of the database
-                      cp ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
+                // Start the update from the latest version of the database
+                sh '''cp ${DB_PATH}/${DB_NAME}.db ${DB_PATH}/${DB_NAME}_${DB_DATE}.db
                       chmod 640 ${DB_PATH}/${DB_NAME}_${DB_DATE}.db'''
 
+                // Try to update the database. The logic of the next block is unfortunately not easy to follow.
+                // Because we set a time limit, the update can fail for two different reasons:
+                //  1. the time limit was reached
+                //  2. an error occured
+                // In the first case, we don't want to mark the build as failed, because the database will still be usable.
+                // Therfore we need to catch the error, so that we can transform it from "ABORTED" to "UNSTABLE".
+                // For the second case, we use cauthtException to record that an error occured and throw the error afterwards
+                // (catchError will, as its name suggest, catch that error, so another strategy is needed to get the build to fail).
                 script {
                     Exception caughtException = null
 
@@ -44,7 +53,7 @@ pipeline {
     }
     post {
         success {
-            // Update was successful, so we can now link to this new version of the database
+            // Update was successful, so we can now update the symlink to point to this new version of the database
             sh "ln -sf ${DB_PATH}/${DB_NAME}_${DB_DATE}.db ${DB_PATH}/${DB_NAME}.db"
         }
         unstable {
@@ -67,6 +76,7 @@ pipeline {
             )
         }
         cleanup {
+            // Prune old versions of the database that have not been accessed in the last 14 days.
             sh "find ${DB_PATH}/${DB_NAME}_????-??-??.db -type f -atime +14 -exec rm {} \\;"
             cleanWs()
         }
