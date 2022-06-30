@@ -78,4 +78,4 @@ do
   add_dir $d 
 done
 
-./update_db.py -db $1 "${EXPT_DIRS[@]}"
+cosima_cookbook-update_db -db $1 "${EXPT_DIRS[@]}"
