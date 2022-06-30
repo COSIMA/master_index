@@ -56,17 +56,21 @@ pipeline {
         success {
             // Update was successful, so we can now update the symlink to point to this new version of the database
             sh "ln -sf ${DB_NEW} ${DB_LINK}"
+            // Prune old versions of the database that have not been accessed in the last 14 days.
+            sh 'find ${DB_PATH}/daily -type f -atime +14 -exec rm -fv {} \\;'
         }
         unstable {
             // The update timed out, but since no other errors have occured, this database should be usable and more complete than the previous version.
             sh "ln -sf ${DB_NEW} ${DB_LINK}"
+            // Prune old versions of the database that have not been accessed in the last 14 days.
+            sh 'find ${DB_PATH}/daily -type f -atime +14 -exec rm -fv {} \\;'
         }
         failure {
             // Delete the failed attempt to update the database
             sh "rm -f ${DB_NEW}"
         }
         aborted {
-            // Delete the failed attempt to update the database, as we cannot be sure about the state of the database in that case
+            // Delete the new database, as we cannot be sure about the state of the database in that case
             sh "rm -f ${DB_NEW}"
         }
         unsuccessful {
@@ -77,8 +81,6 @@ pipeline {
             )
         }
         cleanup {
-            // Prune old versions of the database that have not been accessed in the last 14 days.
-            sh 'find ${DB_PATH}/daily -type f -atime +14 -exec rm -fv {} \\;'
             cleanWs()
         }
 
