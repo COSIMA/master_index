@@ -14,7 +14,7 @@
 #PBS -o log.out
 
 # Sanity checks
-if [ -z "$1" ]; then
+if [ -z "${DB}" ]; then
   echo "Error: database to update was not provided."
   exit 1
 fi
@@ -78,4 +78,4 @@ do
   add_dir $d 
 done
 
-cosima_cookbook-update_db -db $1 "${EXPT_DIRS[@]}"
+cosima_cookbook-update_db -db ${DB} "${EXPT_DIRS[@]}"
