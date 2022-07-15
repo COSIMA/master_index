@@ -1,7 +1,7 @@
 pipeline {
     agent {label 'mo1833.gadi'}
     environment {
-        DB_PATH = '/scratch/v45/mo1833/databases'
+        DB_PATH = '/g/data/ik11/databases'
         DB_LINK = "${DB_PATH}/cosima_master.db"
         DB_DATE = """${sh(returnStdout: true, script: 'date +"%Y-%m-%d"')}""".trim()
         DB      = "${DB_PATH}/daily/cosima_master_${DB_DATE}.db"
