@@ -62,7 +62,7 @@ pipeline {
             emailext (
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
                 subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
-                to: 'micael.oliveira@anu.edu.au'
+                to: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au'
             )
         }
         cleanup {
