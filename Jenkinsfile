@@ -40,7 +40,8 @@ pipeline {
                     }
                 }
 
-                sh "chmod 440 ${DB}"
+                sh """chmod 440 ${DB}
+                      chgrp ik11 ${DB}"""
             }
         }
     }
