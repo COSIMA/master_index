@@ -30,7 +30,7 @@ pipeline {
                     }
                     if (currentBuild.result == 'UNSTABLE') {
                         // Check if the job hit the walltime. Mark the build as successful if that is the case.
-                        timeout = """${sh(returnStdout: true, script: 'grep -c "PBS: job killed: walltime [0-9]* exceeded limit" log.out')}""".trim()
+                        timeout = """${sh(returnStdout: true, script: 'grep -c "PBS: job killed: walltime [0-9]* exceeded limit" log')}""".trim()
                         if ("$timeout"  == "1") {
                             echo "Database update timed out."
                             currentBuild.result == 'SUCCESS'
@@ -73,7 +73,7 @@ pipeline {
             )
         }
         cleanup {
-            archiveArtifacts artifacts: "log.out, log.err"
+            archiveArtifacts artifacts: "log"
             cleanWs()
         }
 

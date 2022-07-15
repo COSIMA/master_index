@@ -10,8 +10,7 @@
 #PBS -l wd
 #PBS -W block=true
 #PBS -j oe
-#PBS -e log.err
-#PBS -o log.out
+#PBS -o log
 
 # Sanity checks
 if [ -z "${DB}" ]; then
