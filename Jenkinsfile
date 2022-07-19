@@ -18,7 +18,7 @@ pipeline {
 
                 // Start the update from the latest version of the database
                 sh '''cp ${DB_LINK} ${DB}
-                      chmod 640 ${DB}'''
+                      chmod 600 ${DB}'''
 
                 // Try to update the database. Because the PBS job has a time limit, the update can fail for two different reasons:
                 //  1. the time limit was reached
