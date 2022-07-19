@@ -76,8 +76,10 @@ pipeline {
 def successfulDBUpdate() {
     // Update was successful, so we can now update the symlink to point to this new version of the database
     sh "ln -sf ${DB} ${DB_LINK}"
-    // Prune old versions of the database that have not been accessed in the last 14 days.
-    sh 'find ${DB_PATH}/daily -type f -atime +14 -name "cosima_master_????-??-??.db" -exec rm -fv {} \\;'
+    // Prune old versions of the database that have not been accessed in the last 14 days, making sure that we are left with at least 7 files.
+    sh '''if [ $(find ${DB_PATH}/daily -type f -atime -14 -name cosima_master_????-??-??.db | wc -l) -gt 7 ]; then
+              find ${DB_PATH}/daily -type f -atime +14 -name "cosima_master_????-??-??.db" -delete
+          fi'''
 }
 
 
