@@ -47,10 +47,10 @@ pipeline {
     }
     post {
         success {
-            successulDBUpdate()
+            successfulDBUpdate()
         }
         unstable {
-            successulDBUpdate()
+            successfulDBUpdate()
         }
         failure {
             failedDBUpdate()
@@ -73,11 +73,11 @@ pipeline {
     }
 }
 
-def successulDBUpdate() {
+def successfulDBUpdate() {
     // Update was successful, so we can now update the symlink to point to this new version of the database
     sh "ln -sf ${DB} ${DB_LINK}"
     // Prune old versions of the database that have not been accessed in the last 14 days.
-    sh 'find ${DB_PATH}/daily -type f -atime +14 -name "cosima_master_????-??-?.db" -exec rm -fv {} \\;'
+    sh 'find ${DB_PATH}/daily -type f -atime +14 -name "cosima_master_????-??-??.db" -exec rm -fv {} \\;'
 }
 
 
