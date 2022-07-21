@@ -1,0 +1,14 @@
+#!/bin/bash
+
+check_dir() {
+    find $1 \( -not -group $2 -or -not -perm -g+r \) -and \( -type d -or -name "*.nc" -or -name "*.yaml" \) -exec ls -ld '{}' \; 2>/dev/null
+}
+
+rm -f incorrect_permissions
+
+for group in ik11 hh5 cj50; do
+    for dir in $(./experiment_dirs $group); do
+        echo "Checking: $dir"
+        check_dir $dir $group | tee -a incorrect_permissions
+    done
+done
