@@ -1,10 +1,11 @@
 #!/bin/bash
 
+# We check for incorrect permissions, writting the results to the "incorrect_permissions" file
+rm -f incorrect_permissions
+
 check_dir() {
     find $1 \( -not -group $2 -or -not -perm -g+r \) -and \( -type d -or -name "*.nc" -or -name "*.yaml" \) -exec ls -ld '{}' \; 2>/dev/null
 }
-
-rm -f incorrect_permissions
 
 for group in ik11 hh5 cj50; do
     for dir in $(./experiment_dirs $group); do
@@ -12,3 +13,13 @@ for group in ik11 hh5 cj50; do
         check_dir $dir $group | tee -a incorrect_permissions
     done
 done
+
+# Check which users own the files/directories that have incorrect permissions and build a blame list
+users=()
+for user in $(cat incorrect_permissions | awk '{print $3}'); do
+    if [[ ! " ${users[*]} " =~ " ${user} " ]]; then
+        users+=($user)
+    fi
+done
+printf -v emails '%s@nci.org.au, ' "${users[@]}"
+echo "${emails%, }" > blame_list
