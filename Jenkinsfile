@@ -54,13 +54,14 @@ pipeline {
                                 // We do the next check outside the bash script, so that we can catch the error and mark the build as unstable.
                                 n_errors =  """${sh(returnStdout: true, script: 'wc -l incorrect_permissions')}""".trim()
                                 if ("$n_errors"  != "0") {
-                                    emailext (
-                                        subject: "Incorrect file permissions when indexing the COSIMA Cookbook database",
-                                        to: '${FILE, path="blame_list"}',
-                                        replyTo: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au',
-                                        body: 'Dear user,\n\n While updating the COSIMA Cookbook database, we found that several files that you own have incorrect permissions or they belong to the wrong group, which prevented us from adding them to the database. You can find the full list of files below (Note: It may be that you own only a subset of these files). We would be grateful if you could fix this issue by making sure that the group has read permissions for all files and directories, that the group has execute permissions for all directories, and that all files and directories belong to one of the following groups: ik11, hh5, or cj50.\n\Note that this email is generated automatically. If you believe you have received this email by mistake, please contact Micael Oliveira (micael.oliveira@anu.edu.au) or Andrew Kiss (andrew.kiss@anu.edu.au).\n\nThe following files and/or directories have incorrect permissions:\n\n${FILE, path="incorrect_permissions"}',
-
-                                    )
+                                    if ("""${sh(returnStdout: true, script: 'date +"%A"')}""".trim() == 'Monday') {
+                                        emailext (
+                                            subject: "Incorrect file permissions when indexing the COSIMA Cookbook database",
+                                            to: '${FILE, path="blame_list"}',
+                                            replyTo: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au',
+                                            body: 'Dear user,\n\n While updating the COSIMA Cookbook database, we found that several files that you own have incorrect permissions or they belong to the wrong group, which prevented us from adding them to the database. You can find the full list of files below (Note: It may be that you own only a subset of these files). We would be grateful if you could fix this issue by making sure that the group has read permissions for all files and directories, that the group has execute permissions for all directories, and that all files and directories belong to one of the following groups: ik11, hh5, or cj50.\nNote that this email is generated automatically. If you believe you have received this email by mistake, please contact Micael Oliveira (micael.oliveira@anu.edu.au) or Andrew Kiss (andrew.kiss@anu.edu.au).\n\nThe following files and/or directories have incorrect permissions:\n\n${FILE, path="incorrect_permissions"}',
+                                        )
+                                    }
                                     error "Some files and/or directories have incorrect permissions and/or wrong group"
                                 }
                             }
