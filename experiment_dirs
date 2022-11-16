@@ -60,4 +60,9 @@ for group in $*; do
     esac
 done
 
+EXCLUSIONS=(/g/data/ik11/outputs/access-om2-01/01deg_jra55v140_iaf_cycle4_MWpert)
+for exclude in ${EXCLUSIONS[@]}; do
+    EXPT_DIRS=("${EXPT_DIRS[@]/$exclude}")
+done
+
 echo "${EXPT_DIRS[@]}"
