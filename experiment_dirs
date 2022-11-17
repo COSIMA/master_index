@@ -53,6 +53,14 @@ for group in $*; do
                 EXPT_DIRS+=($d)
             done
             ;;
+        "jk72")
+            ROOT="/g/data/jk72"
+            for d in pas561/access-om2/025deg_jra55_iaf_omip2_cycle6_ext pas561/access-om2/025deg_jra55_iaf_omip2_cycle6_14to17
+            do
+                d=${ROOT}/${d}
+                EXPT_DIRS+=($d)
+            done
+            ;;
         *)
             echo "Error: unknown group $group"
             exit 1

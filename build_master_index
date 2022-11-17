@@ -24,4 +24,4 @@ module purge
 module use /g/data/hh5/public/modules/
 module load conda/analysis3-unstable
 
-cosima_cookbook-update_db -db ${DB} $(./experiment_dirs ik11 hh5 cj50)
+cosima_cookbook-update_db -db ${DB} $(./experiment_dirs ik11 hh5 cj50 jk72)
