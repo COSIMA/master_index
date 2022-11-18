@@ -60,7 +60,7 @@ for group in $*; do
     esac
 done
 
-EXCLUSIONS=( )
+EXCLUSIONS=(/g/data/ik11/outputs/access-om2-01/basal_melt_outputs)
 for exclude in ${EXCLUSIONS[@]}; do
     EXPT_DIRS=("${EXPT_DIRS[@]/$exclude}")
 done
