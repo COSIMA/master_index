@@ -53,6 +53,13 @@ pipeline {
                 aborted {
                     failedDBUpdate()
                 }
+                unsuccessful {
+                    emailext (
+                        body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                        subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
+                        to: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au'
+                    )
+                }
             }
         }
         stage('Check permissions') {
@@ -67,6 +74,7 @@ pipeline {
                                 emailext (
                                     subject: "Incorrect file permissions when indexing the COSIMA Cookbook database",
                                     to: '${FILE, path="blame_list"}',
+                                    cc: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au',
                                     replyTo: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au',
                                     body: 'Dear user,\n\n While updating the COSIMA Cookbook database, we found that several files that you own have incorrect permissions or they belong to the wrong group, which prevented us from adding them to the database. You can find the full list of files below (Note: It may be that you own only a subset of these files). We would be grateful if you could fix this issue by making sure that the group has read permissions for all files and directories, that the group has execute permissions for all directories, and that all files and directories belong to one of the following groups: ik11, hh5, or cj50.\nNote that this email is generated automatically. If you believe you have received this email by mistake, please contact Micael Oliveira (micael.oliveira@anu.edu.au) or Andrew Kiss (andrew.kiss@anu.edu.au).\n\nThe following files and/or directories have incorrect permissions:\n\n${FILE, path="incorrect_permissions"}',
                                 )
@@ -79,13 +87,6 @@ pipeline {
         }
     }
     post {
-        unsuccessful {
-            emailext (
-                body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
-                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
-                to: 'micael.oliveira@anu.edu.au, andrew.kiss@anu.edu.au'
-            )
-        }
         cleanup {
             archiveArtifacts artifacts: "log, incorrect_permissions"
             cleanWs()
