@@ -39,9 +39,20 @@ pipeline {
                         }
                     }
                 }
-
-                sh """chmod 440 ${DB}
-                              chgrp ik11 ${DB}"""
+            }
+            post {
+                success {
+                    successfulDBUpdate()
+                }
+                unstable {
+                    successfulDBUpdate()
+                }
+                failure {
+                    failedDBUpdate()
+                }
+                aborted {
+                    failedDBUpdate()
+                }
             }
         }
         stage('Check permissions') {
@@ -68,18 +79,6 @@ pipeline {
         }
     }
     post {
-        success {
-            successfulDBUpdate()
-        }
-        unstable {
-            successfulDBUpdate()
-        }
-        failure {
-            failedDBUpdate()
-        }
-        aborted {
-            failedDBUpdate()
-        }
         unsuccessful {
             emailext (
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
@@ -96,6 +95,8 @@ pipeline {
 }
 
 def successfulDBUpdate() {
+    sh """chmod 440 ${DB}
+          chgrp ik11 ${DB}"""
     // Update was successful, so we can now update the symlink to point to this new version of the database
     sh "ln -sf ${DB} ${DB_LINK}"
     // Prune old versions of the database that have not been accessed in the last 14 days, making sure that we are left with at least 7 files.
