@@ -4,7 +4,7 @@
 rm -f incorrect_permissions
 
 check_dir() {
-    find $1 \( -not -group $2 -or -not -perm -g+r \) -and \( -type d -or -name "*.nc" -or -name "*.yaml" \) -exec ls -ld '{}' \; 2>/dev/null
+    find $1 \( -not -group $2 -or -not -perm -g+rX \) -and \( -type d -or -name "*.nc" -or -name "*.yaml" \) -exec ls -ld '{}' \; 2>/dev/null
 }
 
 for group in ik11 hh5 cj50 jk72; do
