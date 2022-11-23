@@ -1,11 +1,13 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 fix_dir() {
     find $1 -user $(whoami) -and \( -not -group $2 -or -not -perm -g+rX \) -and \( -type d -or -name "*.nc" -or -name "*.yaml" \) -exec chgrp $2 '{}' \; -exec chmod g+rX '{}' \; -exec echo ' - Fixed: {}' \;  2>/dev/null
 }
 
 for group in ik11 hh5 cj50 jk72; do
-    for dir in $(./experiment_dirs $group); do
+    for dir in $($SCRIPT_DIR/experiment_dirs $group); do
         echo "Checking: $dir"
         fix_dir $dir $group
     done

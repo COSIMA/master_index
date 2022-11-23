@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 # We check for incorrect permissions, writting the results to the "incorrect_permissions" file
 rm -f incorrect_permissions
 
@@ -8,7 +10,7 @@ check_dir() {
 }
 
 for group in ik11 hh5 cj50 jk72; do
-    for dir in $(./experiment_dirs $group); do
+    for dir in $($SCRIPT_DIR/experiment_dirs $group); do
         echo "Checking: $dir"
         check_dir $dir $group | tee -a incorrect_permissions
     done
