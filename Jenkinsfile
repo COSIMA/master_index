@@ -64,7 +64,7 @@ pipeline {
         }
         stage('Check permissions') {
             steps {
-                sh "./check_permissions"
+                sh "./check_permissions -b"
                 script {
                     catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                         // We do the next check outside the bash script, so that we can catch the error and mark the build as unstable.

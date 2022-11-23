@@ -1,9 +1,33 @@
 #!/bin/bash
 
+usage() {
+    echo "Usage: $0 [ -b ] " 1>&2
+    echo "    Options:"
+    echo "      -b        write all the details of the files with incorrect permissions to"
+    echo "                'incorrect_permissions' and a blame list with all the users"
+    echo "                owning those file"
+}
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+blame_list=false
+
+while getopts "h?b" opt; do
+    case "$opt" in
+        h|\?)
+            usage
+            exit 0
+            ;;
+        b) blame_list=true
+           ;;
+    esac
+done
+
+
 # We check for incorrect permissions, writting the results to the "incorrect_permissions" file
-rm -f incorrect_permissions
+if [ "$blame_list" = true ] ; then
+    rm -f incorrect_permissions
+fi
 
 check_dir() {
     find $1 \( -not -group $2 -or -not -perm -g+rX \) -and \( -type d -or -name "*.nc" -or -name "*.yaml" \) -exec ls -ld '{}' \; 2>/dev/null
@@ -12,16 +36,22 @@ check_dir() {
 for group in ik11 hh5 cj50 jk72; do
     for dir in $($SCRIPT_DIR/experiment_dirs $group); do
         echo "Checking: $dir"
-        check_dir $dir $group | tee -a incorrect_permissions
+        if [ "$blame_list" = true ] ; then
+            check_dir $dir $group | tee -a incorrect_permissions
+        else
+            check_dir $dir $group
+        fi
     done
 done
 
 # Check which users own the files/directories that have incorrect permissions and build a blame list
-users=()
-for user in $(cat incorrect_permissions | awk '{print $3}'); do
-    if [[ ! " ${users[*]} " =~ " ${user} " ]]; then
+if [ "$blame_list" = true ] ; then
+    users=()
+    for user in $(cat incorrect_permissions | awk '{print $3}'); do
+        if [[ ! " ${users[*]} " =~ " ${user} " ]]; then
         users+=($user)
-    fi
-done
-printf -v emails '%s@nci.org.au, ' "${users[@]}"
-echo "${emails%, }" > blame_list
+        fi
+    done
+    printf -v emails '%s@nci.org.au, ' "${users[@]}"
+    echo "${emails%, }" > blame_list
+fi
