@@ -34,7 +34,7 @@ check_dir() {
 }
 
 for group in ik11 hh5 cj50 jk72; do
-    for dir in $($SCRIPT_DIR/experiment_dirs $group); do
+    for dir in $("$SCRIPT_DIR"/experiment_dirs $group); do
         echo "Checking: $dir"
         if [ "$blame_list" = true ] ; then
             check_dir $dir $group | tee -a incorrect_permissions
