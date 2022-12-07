@@ -96,11 +96,13 @@ pipeline {
 }
 
 def successfulDBUpdate() {
-    sh """chmod 440 ${DB}
-          chmod -f 440 ${DB}-journal
+    sh '''chmod 440 ${DB}
           chgrp ik11 ${DB}
-          chgrp -f ik11 ${DB}-journal
-       """
+          if [ -f "${DB}-journal" ]; then
+              chmod 440 ${DB}-journal
+              chgrp ik11 ${DB}-journal
+          fi
+       '''
     // Update was successful, so we can now update the symlink to point to this new version of the database
     sh "ln -sf ${DB} ${DB_LINK}"
     // Prune old versions of the database that have not been accessed in the last 14 days, making sure that we are left with at least 7 files.
