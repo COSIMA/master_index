@@ -54,8 +54,8 @@ for group in $*; do
             done
             ;;
         "jk72")
-            ROOT="/g/data/jk72"
-            for d in pas561/access-om2/025deg_jra55_iaf_omip2_cycle6_ext pas561/access-om2/025deg_jra55_iaf_omip2_cycle6_14to17
+            ROOT="/g/data/jk72/pas561/access-om2/"
+            for d in 025deg_jra55_iaf_omip2_cycle6_ext 025deg_jra55_iaf_omip2_cycle6_14to17 025deg_jra55_iaf_omip2_cycle6_78to08
             do
                 d=${ROOT}/${d}
                 EXPT_DIRS+=($d)
