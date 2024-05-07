@@ -25,7 +25,7 @@ update_db_finish.sh
 
 The names should be quite self-explanatory. The reason why the full procedure is
 divided in two parts is that it might happen the update fails for some
-reason. In that case, the udpated database might be unusable and one should
+reason. In that case, the updated database might be unusable and one should
 **not** invoke the `update_db_finish.sh` script. Therefore one should always
 carefully check the logs produced by the `update_db_start.sh` script before
 invoking the `update_db_finish.sh` script.
