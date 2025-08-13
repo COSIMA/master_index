@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> **This repository has been archived and is read-only. The cosima-cookbook database has been superceded by the [access-nri-intake-catalog](https://github.com/ACCESS-NRI/access-nri-intake-catalog).**
+
 # Master Index
 
 This repo contains the script that is used to generate and keep
